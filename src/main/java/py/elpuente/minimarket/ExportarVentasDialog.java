@@ -141,7 +141,7 @@ final class ExportarVentasDialog extends BaseDialog {
             }
             if (destino.exists() && !Ui.confirmar(this, "El archivo ya existe. ¿Reemplazarlo?", "Confirmar")) return;
 
-            List<Hoja> hojas = ReporteVentas.armar(p, ref, detalle, ventas);
+            List<Hoja> hojas = ReporteVentas.armar(p, ref, detalle, ventas, dao.totalesPorMetodo(p.desde(ref), p.hasta(ref)));
             if (excel) XlsxWriter.escribir(destino.toPath(), hojas);
             else CsvWriter.escribir(destino.toPath(), hojas.get(0));
             Ui.info(this, "Reporte exportado correctamente:\n" + destino.getAbsolutePath());

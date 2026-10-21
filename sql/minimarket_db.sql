@@ -51,6 +51,19 @@ CREATE TABLE venta_items (
 );
 CREATE INDEX venta_items_venta_idx ON venta_items (venta_id);
 
+-- Formas de pago de cada venta (pueden ser varias: efectivo + tarjeta + QR).
+--   metodo   : EFECTIVO, TARJETA o QR
+--   monto    : parte de la venta que cubre ese pago
+--   recibido : lo que entrego el cliente (en efectivo, recibido - monto = vuelto)
+CREATE TABLE venta_pagos (
+    id       BIGSERIAL     PRIMARY KEY,
+    venta_id BIGINT        NOT NULL REFERENCES ventas (id) ON DELETE CASCADE,
+    metodo   VARCHAR(20)   NOT NULL,
+    monto    NUMERIC(14,2) NOT NULL,
+    recibido NUMERIC(14,2) NOT NULL
+);
+CREATE INDEX venta_pagos_venta_idx ON venta_pagos (venta_id);
+
 -- ---------------------------------------------------------------- VISTA PARA CONSULTAS
 -- Para revisar ventas desde pgAdmin:  SELECT * FROM v_ventas_detalle ORDER BY fecha DESC;
 CREATE VIEW v_ventas_detalle AS
@@ -70,9 +83,9 @@ JOIN venta_items i ON i.venta_id = v.id;
 -- Cambie la clave, quite los "--" y ejecute. Luego configure en el programa:
 --   MINIMARKET_USER=minimarket_app   MINIMARKET_PASSWORD=<la clave>
 -- CREATE ROLE minimarket_app LOGIN PASSWORD 'CAMBIAR_ESTA_CLAVE';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON productos, usuarios, ventas, venta_items TO minimarket_app;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON productos, usuarios, ventas, venta_items, venta_pagos TO minimarket_app;
 -- GRANT SELECT ON v_ventas_detalle TO minimarket_app;
--- GRANT USAGE, SELECT ON SEQUENCE ventas_id_seq, venta_items_id_seq TO minimarket_app;
+-- GRANT USAGE, SELECT ON SEQUENCE ventas_id_seq, venta_items_id_seq, venta_pagos_id_seq TO minimarket_app;
 
 -- NOTA: no se crea ningun usuario de acceso aqui. La primera vez que abra el programa,
 -- la pantalla de inicio le pedira crear el primero (usuario y clave numericos).

@@ -108,22 +108,28 @@ final class VentaDialog extends BaseDialog {
         actualizar();
     }
 
-    /** Registra la venta en la base de datos (para los reportes) y limpia la pantalla. */
+    /** Pide el metodo de pago (y calcula el vuelto), registra la venta en la BD y limpia la pantalla. */
     private void cobrar() {
         if (carrito.lineas().isEmpty()) {
             Ui.aviso(this, "No hay productos en la venta.");
             return;
         }
         BigDecimal total = carrito.total();
-        if (!Ui.confirmar(this, "¿Cobrar " + Ui.guaranies(total) + "?", "Confirmar cobro")) return;
+        PagoDialog pago = new PagoDialog(this, total);
+        pago.setVisible(true);                         // modal: espera a que se confirme o cancele
+        if (!pago.confirmado()) return;
+
+        List<Pago> pagos = pago.pagos();
         try {
-            long id = ventaDao.guardar(new ArrayList<>(carrito.lineas()), total, Sesion.usuario());
+            long id = ventaDao.guardar(new ArrayList<>(carrito.lineas()), total, Sesion.usuario(), pagos);
             // Guarda el ticket en memoria (sobreescribe el anterior); solo se muestra al pulsar "Imprimir ticket"
-            ultimoTicket = Ticket.crear(id, LocalDateTime.now(), Sesion.usuario(), carrito.lineas(), total);
+            ultimoTicket = Ticket.crear(id, LocalDateTime.now(), Sesion.usuario(), carrito.lineas(), total, pagos);
             btnImprimir.setEnabled(true);
             carrito.vaciar();
             actualizar();
+            BigDecimal vuelto = PlanPago.vueltoDe(pagos);
             Ui.info(this, "Venta N° " + id + " registrada.\nTotal cobrado: " + Ui.guaranies(total)
+                    + (vuelto.signum() > 0 ? "\n\nVUELTO A ENTREGAR: " + Ui.guaranies(vuelto) : "")
                     + "\n\nPulse \"Imprimir ticket\" para ver el ticket.");
             txtCodigo.requestFocusInWindow();
         } catch (SQLException ex) {

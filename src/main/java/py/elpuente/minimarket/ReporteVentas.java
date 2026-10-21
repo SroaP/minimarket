@@ -11,7 +11,8 @@ import java.util.TreeMap;
 final class ReporteVentas {
     private ReporteVentas() { }
 
-    static List<Hoja> armar(Periodo periodo, LocalDate ref, List<VentaDetalle> detalle, List<VentaResumen> ventas) {
+    static List<Hoja> armar(Periodo periodo, LocalDate ref, List<VentaDetalle> detalle, List<VentaResumen> ventas,
+                            Map<String, BigDecimal> porMetodo) {
         // ---- Detalle ----
         Hoja det = new Hoja("Detalle", 9, 17, 12, 14, 36, 14, 10, 14);
         det.fila(Hoja.Estilo.ENCABEZADO, "Venta", "Fecha", "Usuario", "Código", "Producto", "Precio", "Cantidad", "Subtotal");
@@ -62,7 +63,17 @@ final class ReporteVentas {
                         e.getValue().cantidad(), e.getValue().total()));
         pp.fila(Hoja.Estilo.TOTAL, "TOTAL", null, null, totalDet);
 
-        return List.of(det, res, pp);
+        // ---- Por metodo de pago ----
+        Hoja mp = new Hoja("Por método de pago", 22, 18);
+        mp.fila(Hoja.Estilo.ENCABEZADO, "Método de pago", "Total cobrado");
+        BigDecimal totalMp = BigDecimal.ZERO;
+        for (Map.Entry<String, BigDecimal> e : porMetodo.entrySet()) {
+            mp.fila(Hoja.Estilo.NORMAL, e.getKey(), e.getValue());
+            totalMp = totalMp.add(e.getValue());
+        }
+        mp.fila(Hoja.Estilo.TOTAL, "TOTAL", totalMp);
+
+        return List.of(det, res, pp, mp);
     }
 
     static String nombreArchivo(Periodo p, LocalDate ref, String extension) {

@@ -29,20 +29,23 @@ final class Ticket {
     private final String usuario;
     private final List<Item> items;
     private final BigDecimal total;
+    private final List<Pago> pagos;
 
-    private Ticket(long numero, LocalDateTime fecha, String usuario, List<Item> items, BigDecimal total) {
+    private Ticket(long numero, LocalDateTime fecha, String usuario, List<Item> items, BigDecimal total, List<Pago> pagos) {
         this.numero = numero;
         this.fecha = fecha;
         this.usuario = usuario;
         this.items = items;
         this.total = total;
+        this.pagos = pagos;
     }
 
     /** Toma una copia de las lineas (el carrito se vacia despues de cobrar). */
-    static Ticket crear(long numero, LocalDateTime fecha, String usuario, List<LineaVenta> lineas, BigDecimal total) {
+    static Ticket crear(long numero, LocalDateTime fecha, String usuario, List<LineaVenta> lineas, BigDecimal total,
+                        List<Pago> pagos) {
         List<Item> copia = new ArrayList<>();
         for (LineaVenta l : lineas) copia.add(new Item(l.nombre(), l.cantidad(), l.subtotal()));
-        return new Ticket(numero, fecha, usuario, copia, total);
+        return new Ticket(numero, fecha, usuario, copia, total, new ArrayList<>(pagos));
     }
 
     long numero() { return numero; }
@@ -67,6 +70,15 @@ final class Ticket {
         sb.append(raya).append('\n');
         String totalTxt = Ui.guaranies(total);
         sb.append(String.format("%-" + (ANCHO - totalTxt.length()) + "s%s%n", "TOTAL", totalTxt));
+        for (Pago p : pagos) {
+            String monto = Ui.guaranies(p.recibido());
+            sb.append(String.format("%-" + (ANCHO - monto.length()) + "s%s%n", p.metodo(), monto));
+        }
+        BigDecimal vuelto = PlanPago.vueltoDe(pagos);
+        if (vuelto.signum() > 0) {
+            String v = Ui.guaranies(vuelto);
+            sb.append(String.format("%-" + (ANCHO - v.length()) + "s%s%n", "VUELTO", v));
+        }
         sb.append(raya).append('\n');
         sb.append(centrar("¡Gracias por su compra!")).append('\n');
         return sb.toString();

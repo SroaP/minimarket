@@ -41,6 +41,15 @@ final class Esquema {
                     + " subtotal NUMERIC(14,2) NOT NULL)");
                 st.execute("CREATE INDEX venta_items_venta_idx ON venta_items (venta_id)");
             }
+            if (!existe(cn, "venta_pagos")) {
+                st.execute("CREATE TABLE venta_pagos ("
+                    + " id BIGSERIAL PRIMARY KEY,"
+                    + " venta_id BIGINT NOT NULL REFERENCES ventas(id) ON DELETE CASCADE,"
+                    + " metodo VARCHAR(20) NOT NULL,"
+                    + " monto NUMERIC(14,2) NOT NULL,"
+                    + " recibido NUMERIC(14,2) NOT NULL)");
+                st.execute("CREATE INDEX venta_pagos_venta_idx ON venta_pagos (venta_id)");
+            }
         }
     }
 
