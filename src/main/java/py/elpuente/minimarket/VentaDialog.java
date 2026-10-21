@@ -4,61 +4,59 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-/** Pantalla de venta: escanea codigos, suma cantidades y calcula el total. Equivale a sumar_productos. */
+/** Pantalla de venta: escanea codigos, suma cantidades, calcula el total y registra la venta al cobrar. */
 final class VentaDialog extends BaseDialog {
     private final ProductoDao dao = new ProductoDao();
+    private final VentaDao ventaDao = new VentaDao();
     private final Carrito carrito = new Carrito();
     private final VentaTableModel modelo = new VentaTableModel(carrito);
     private final JTable tabla = Ui.tabla(modelo);
-    private final JTextField txtCodigo = Ui.campo(22, 14f);
-    private final JTextField txtTotal = Ui.campo(12, 18f);
+    private final JTextField txtCodigo = Ui.campo(22, 17f);
+    private final JLabel lblTotal = Ui.etiqueta("Gs. 0", 30f, Font.BOLD, Ui.PRIMARIO);
+    /** Ultima venta cobrada, solo en memoria. null = no hay ticket disponible. */
+    private Ticket ultimoTicket;
+    private final JButton btnImprimir = Ui.boton("Imprimir ticket", 13f, Ui.Estilo.NEUTRO);
+    private final JLabel lblItems = Ui.etiqueta("Sin productos", 12f, Font.PLAIN, Ui.GRIS);
 
     VentaDialog(Window padre) {
-        super(padre, "Venta", "Volver al menu");
+        super(padre, "Venta", "Volver al menú");
 
-        txtCodigo.setFont(Ui.fuente(14f, Font.BOLD));
-        txtTotal.setFont(Ui.fuente(18f, Font.BOLD));
-        txtTotal.setEditable(false);
-        txtTotal.setHorizontalAlignment(SwingConstants.RIGHT);
-        txtTotal.setBackground(new Color(185, 209, 234));
+        // Izquierda: codigo + grilla
+        Ui.Tarjeta codigo = Ui.tarjeta(new BorderLayout(16, 0));
+        codigo.add(Ui.etiqueta("Escanee o ingrese el código", 13f, Font.PLAIN, Ui.GRIS), BorderLayout.WEST);
+        codigo.add(txtCodigo, BorderLayout.CENTER);
+        JPanel izquierda = Ui.transparente(new BorderLayout(0, 16));
+        izquierda.add(codigo, BorderLayout.NORTH);
+        izquierda.add(Ui.tablaEnTarjeta(tabla), BorderLayout.CENTER);
 
-        // Arriba: codigo
-        JPanel codigo = Ui.transparente(new FlowLayout(FlowLayout.CENTER, 12, 8));
-        codigo.add(Ui.etiqueta("Ingrese el codigo:", 14f));
-        codigo.add(txtCodigo);
-
-        // Derecha: total y cobrar
-        JButton cobrar = Ui.boton("COBRAR", 12f);
-        cobrar.setPreferredSize(new Dimension(180, 70));
-        JPanel derecha = Ui.transparente(new GridBagLayout());
-        derecha.setBorder(new EmptyBorder(10, 10, 10, 30));
+        // Derecha: total y acciones
+        JButton cobrar = Ui.boton("COBRAR", 16f);
+        JButton buscar = Ui.boton("Buscar por nombre / agregar por kg", 11f, Ui.Estilo.NEUTRO);
+        JButton quitar = Ui.boton("Quitar producto seleccionado", 11f, Ui.Estilo.PELIGRO);
+        Ui.Tarjeta derecha = Ui.tarjeta(new GridBagLayout());
+        derecha.setPreferredSize(new Dimension(360, 0));
         GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0; c.insets = new Insets(8, 8, 8, 8);
-        c.gridy = 0; derecha.add(Ui.etiqueta("TOTAL", 16f), c);
-        c.gridy = 1; derecha.add(txtTotal, c);
-        c.gridy = 2; c.insets = new Insets(40, 8, 8, 8); derecha.add(cobrar, c);
+        c.gridx = 0; c.weightx = 1; c.fill = GridBagConstraints.HORIZONTAL; c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0; derecha.add(Ui.etiqueta("TOTAL A COBRAR", 12f, Font.BOLD, Ui.GRIS), c);
+        c.gridy = 1; c.insets = new Insets(6, 0, 0, 0); derecha.add(lblTotal, c);
+        c.gridy = 2; derecha.add(lblItems, c);
+        c.gridy = 3; c.weighty = 1; derecha.add(Box.createVerticalGlue(), c);
+        c.weighty = 0;
+        btnImprimir.setEnabled(false);
+        c.gridy = 4; c.insets = new Insets(0, 0, 10, 0); derecha.add(btnImprimir, c);
+        c.gridy = 5; cobrar.setBorder(new EmptyBorder(18, 10, 18, 10)); derecha.add(cobrar, c);
+        c.gridy = 6; derecha.add(buscar, c);
+        c.gridy = 7; c.insets = new Insets(0, 0, 0, 0); derecha.add(quitar, c);
 
-        // Abajo: botones de la grilla
-        JButton buscar = Ui.boton("Buscar por nombre o agregar por kg", 11f);
-        JButton quitar = Ui.boton("Eliminar producto", 11f);
-        JPanel abajo = Ui.transparente(new FlowLayout(FlowLayout.LEFT, 12, 8));
-        abajo.setBorder(new EmptyBorder(0, 30, 15, 0));
-        abajo.add(buscar);
-        abajo.add(quitar);
+        contenido.add(izquierda, BorderLayout.CENTER);
+        contenido.add(derecha, BorderLayout.EAST);
 
-        JPanel centro = Ui.transparente(new BorderLayout());
-        centro.add(codigo, BorderLayout.NORTH);
-        JPanel grilla = Ui.transparente(new BorderLayout());
-        grilla.setBorder(new EmptyBorder(5, 40, 5, 10));
-        grilla.add(new JScrollPane(tabla), BorderLayout.CENTER);
-        centro.add(grilla, BorderLayout.CENTER);
-        centro.add(abajo, BorderLayout.SOUTH);
-        add(centro, BorderLayout.CENTER);
-        add(derecha, BorderLayout.EAST);
-
-        // Enter en el codigo agrega el producto (el JTextField ya evita el pitido)
+        // Enter en el codigo agrega el producto
         txtCodigo.addActionListener(e -> {
             String cod = txtCodigo.getText().trim();
             if (!cod.isEmpty()) {
@@ -69,10 +67,9 @@ final class VentaDialog extends BaseDialog {
         });
         buscar.addActionListener(e -> new BuscarPorNombreDialog(this, this).setVisible(true));
         quitar.addActionListener(e -> quitarSeleccionado());
-        cobrar.addActionListener(e -> {
-            carrito.vaciar();
-            modelo.refrescar();
-            txtTotal.setText("");
+        cobrar.addActionListener(e -> cobrar());
+        btnImprimir.addActionListener(e -> {
+            if (ultimoTicket != null) new TicketDialog(this, ultimoTicket).setVisible(true);
         });
 
         SwingUtilities.invokeLater(txtCodigo::requestFocusInWindow);
@@ -86,6 +83,7 @@ final class VentaDialog extends BaseDialog {
                 return;
             }
             Producto p = r.get(0);
+            descartarTicketSiVentaNueva();
             carrito.agregar(codigo, p.nombre(), p.precio(), 1);
             actualizar();
         } catch (Exception ex) {
@@ -95,6 +93,7 @@ final class VentaDialog extends BaseDialog {
 
     /** Lo llama la ventana de busqueda por nombre. */
     void agregarDesdeBusqueda(String codigo, String nombre, BigDecimal precio, double cantidad) {
+        descartarTicketSiVentaNueva();
         carrito.agregar(codigo, nombre, precio, cantidad);
         actualizar();
     }
@@ -109,8 +108,41 @@ final class VentaDialog extends BaseDialog {
         actualizar();
     }
 
+    /** Registra la venta en la base de datos (para los reportes) y limpia la pantalla. */
+    private void cobrar() {
+        if (carrito.lineas().isEmpty()) {
+            Ui.aviso(this, "No hay productos en la venta.");
+            return;
+        }
+        BigDecimal total = carrito.total();
+        if (!Ui.confirmar(this, "¿Cobrar " + Ui.guaranies(total) + "?", "Confirmar cobro")) return;
+        try {
+            long id = ventaDao.guardar(new ArrayList<>(carrito.lineas()), total, Sesion.usuario());
+            // Guarda el ticket en memoria (sobreescribe el anterior); solo se muestra al pulsar "Imprimir ticket"
+            ultimoTicket = Ticket.crear(id, LocalDateTime.now(), Sesion.usuario(), carrito.lineas(), total);
+            btnImprimir.setEnabled(true);
+            carrito.vaciar();
+            actualizar();
+            Ui.info(this, "Venta N° " + id + " registrada.\nTotal cobrado: " + Ui.guaranies(total)
+                    + "\n\nPulse \"Imprimir ticket\" para ver el ticket.");
+            txtCodigo.requestFocusInWindow();
+        } catch (SQLException ex) {
+            Ui.error(this, "No se pudo registrar la venta:\n" + ex.getMessage());
+        }
+    }
+
+    /** Al empezar una venta nueva (carrito vacio) el ticket anterior sin imprimir se descarta. */
+    private void descartarTicketSiVentaNueva() {
+        if (carrito.lineas().isEmpty() && ultimoTicket != null) {
+            ultimoTicket = null;
+            btnImprimir.setEnabled(false);
+        }
+    }
+
     private void actualizar() {
         modelo.refrescar();
-        txtTotal.setText("Total: " + Ui.formatoEntero(carrito.total()));
+        lblTotal.setText(Ui.guaranies(carrito.total()));
+        int n = carrito.lineas().size();
+        lblItems.setText(n == 0 ? "Sin productos" : n + (n == 1 ? " producto" : " productos"));
     }
 }

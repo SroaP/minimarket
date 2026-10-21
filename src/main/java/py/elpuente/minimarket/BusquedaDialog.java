@@ -12,22 +12,20 @@ import java.util.List;
  */
 abstract class BusquedaDialog extends BaseDialog {
     protected final ProductoDao dao = new ProductoDao();
-    protected final JTextField txtCodigo = Ui.campo(18, 14f);
-    protected final JTextField txtProd = Ui.campo(18, 14f);
+    protected final JTextField txtCodigo = Ui.campo(24, 14f);
+    protected final JTextField txtProd = Ui.campo(24, 14f);
     protected final ProductoTableModel modelo = new ProductoTableModel();
     protected final JTable tabla = Ui.tabla(modelo);
-    protected final JPanel formulario = Ui.transparente(new GridBagLayout());
+    protected final JPanel formulario = Ui.tarjeta(new GridBagLayout());
 
     BusquedaDialog(Window padre, String titulo) {
         super(padre, titulo, "Volver al menú");
-        fila(formulario, 0, "Ingrese el código", txtCodigo);
-        fila(formulario, 1, "Ingrese el nombre del producto", txtProd);
-        JPanel arriba = Ui.transparente(new FlowLayout(FlowLayout.CENTER));
+        fila(formulario, 0, "Código", txtCodigo);
+        fila(formulario, 1, "Nombre del producto", txtProd);
+        JPanel arriba = Ui.transparente(new FlowLayout(FlowLayout.LEFT, 0, 0));
         arriba.add(formulario);
-        JPanel contenedor = Ui.transparente(new BorderLayout());
-        contenedor.add(arriba, BorderLayout.NORTH);
-        contenedor.add(tablaConMargen(tabla), BorderLayout.CENTER);
-        add(contenedor, BorderLayout.CENTER);
+        contenido.add(arriba, BorderLayout.NORTH);
+        contenido.add(Ui.tablaEnTarjeta(tabla), BorderLayout.CENTER);
     }
 
     /** Debe llamarse al final del constructor de la subclase (ya con todos los campos creados). */

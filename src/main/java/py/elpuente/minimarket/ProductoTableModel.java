@@ -19,6 +19,7 @@ final class ProductoTableModel extends AbstractTableModel {
     @Override public int getRowCount() { return filas.size(); }
     @Override public int getColumnCount() { return COLUMNAS.length; }
     @Override public String getColumnName(int c) { return COLUMNAS[c]; }
+    @Override public Class<?> getColumnClass(int c) { return c == 2 ? java.math.BigDecimal.class : String.class; }
 
     @Override public Object getValueAt(int f, int c) {
         Producto p = filas.get(f);

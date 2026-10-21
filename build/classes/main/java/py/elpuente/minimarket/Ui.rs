@@ -1,2 +1,11 @@
+py.elpuente.minimarket.Ui$Tarjeta
+py.elpuente.minimarket.Ui$Estilo
 py.elpuente.minimarket.Ui
+py.elpuente.minimarket.Ui$Boton
+py.elpuente.minimarket.Ui$4
+py.elpuente.minimarket.Ui$Mosaico
+py.elpuente.minimarket.Ui$Celda
+py.elpuente.minimarket.Ui$2
+py.elpuente.minimarket.Ui$Interruptor
+py.elpuente.minimarket.Ui$3
 py.elpuente.minimarket.Ui$1

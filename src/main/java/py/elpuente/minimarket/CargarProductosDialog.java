@@ -9,37 +9,35 @@ import java.sql.SQLException;
 final class CargarProductosDialog extends BaseDialog {
     private final ProductoDao dao = new ProductoDao();
     private final JTextField txtCodigo = Ui.campo(14, 14f);
-    private final JTextField txtProducto = Ui.campo(18, 14f);
+    private final JTextField txtProducto = Ui.campo(24, 14f);
     private final JTextField txtPrecio = Ui.campo(12, 14f);
-    private final JButton btnNuevo = Ui.boton("Nuevo", 14f);
-    private final JButton btnGuardar = Ui.boton("Guardar", 14f);
+    private final JButton btnNuevo = Ui.boton("Nuevo", 13f, Ui.Estilo.NEUTRO);
+    private final JButton btnGuardar = Ui.boton("Guardar", 13f);
     private final ProductoTableModel modelo = new ProductoTableModel();
 
     CargarProductosDialog(Window padre) {
         super(padre, "Cargar productos", "Volver al menú");
 
-        JPanel formulario = Ui.transparente(new FlowLayout(FlowLayout.CENTER, 20, 5));
-        formulario.add(columna("Ingrese el código", txtCodigo));
-        formulario.add(columna("Ingrese el nombre del producto", txtProducto));
-        formulario.add(columna("Ingrese el precio", txtPrecio));
-
-        JPanel botones = Ui.transparente(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        JPanel formulario = Ui.tarjeta(new GridBagLayout());
+        agregar(formulario, 0, "Código", txtCodigo);
+        agregar(formulario, 1, "Nombre del producto", txtProducto);
+        agregar(formulario, 2, "Precio", txtPrecio);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 3; c.gridy = 1; c.anchor = GridBagConstraints.SOUTH; c.insets = new Insets(0, 10, 0, 0);
+        JPanel botones = Ui.transparente(new FlowLayout(FlowLayout.LEFT, 10, 0));
         botones.add(btnNuevo);
         botones.add(btnGuardar);
+        formulario.add(botones, c);
 
-        JPanel arriba = Ui.transparente(new BorderLayout());
-        arriba.add(formulario, BorderLayout.NORTH);
-        arriba.add(botones, BorderLayout.SOUTH);
+        JPanel arriba = Ui.transparente(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        arriba.add(formulario);
+        contenido.add(arriba, BorderLayout.NORTH);
+        contenido.add(Ui.tablaEnTarjeta(Ui.tabla(modelo)), BorderLayout.CENTER);
 
-        JPanel contenedor = Ui.transparente(new BorderLayout());
-        contenedor.add(arriba, BorderLayout.NORTH);
-        contenedor.add(tablaConMargen(Ui.tabla(modelo)), BorderLayout.CENTER);
-        add(contenedor, BorderLayout.CENTER);
-
-        // Enter pasa al siguiente campo; en el precio, al boton Guardar
+        // Enter pasa al siguiente campo; en el precio, guarda
         txtCodigo.addActionListener(e -> txtProducto.requestFocusInWindow());
         txtProducto.addActionListener(e -> txtPrecio.requestFocusInWindow());
-        txtPrecio.addActionListener(e -> btnGuardar.requestFocusInWindow());
+        txtPrecio.addActionListener(e -> btnGuardar.doClick());
 
         btnNuevo.addActionListener(e -> {
             txtCodigo.setText("");
@@ -53,11 +51,12 @@ final class CargarProductosDialog extends BaseDialog {
         SwingUtilities.invokeLater(txtCodigo::requestFocusInWindow);
     }
 
-    private static JPanel columna(String titulo, JTextField campo) {
-        JPanel p = Ui.transparente(new BorderLayout(0, 6));
-        p.add(Ui.etiqueta(titulo, 14f), BorderLayout.NORTH);
-        p.add(campo, BorderLayout.CENTER);
-        return p;
+    private static void agregar(JPanel p, int x, String titulo, JTextField campo) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = x; c.gridy = 0; c.anchor = GridBagConstraints.WEST; c.insets = new Insets(0, 0, 6, 12);
+        p.add(Ui.etiqueta(titulo, 13f, Font.PLAIN, Ui.GRIS), c);
+        c.gridy = 1; c.insets = new Insets(0, 0, 0, 12);
+        p.add(campo, c);
     }
 
     private void cargarGrilla() {

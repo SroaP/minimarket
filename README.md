@@ -12,6 +12,17 @@ mvn package
 java -jar target/minimarket-1.0.1.5.jar
 ```
 
+## Seguridad: inicio de sesión
+- Al abrir la app se pide **usuario y contraseña, ambos solo numéricos** (4 a 20 dígitos). Pueden ser iguales.
+- La primera vez (sin usuarios) la misma pantalla permite **crear el primer usuario**. Después, desde el menú → *Usuarios*.
+- Las contraseñas se guardan con PBKDF2-HMAC-SHA256 + sal; nunca en texto plano.
+- Tras 5 intentos fallidos se bloquea el botón 30 segundos.
+
+## Ventas y exportación
+- Al **COBRAR** la venta se guarda en la BD (tablas `ventas` y `venta_items`, creadas automáticamente).
+- Menú → *Exportar ventas*: período diario, semanal (lunes a domingo) o mensual, con fecha de referencia.
+  Exporta a **Excel (.xlsx)** con 3 hojas (Detalle, Resumen por día, Por producto) o a **CSV** (detalle).
+
 ## Configuración de la base de datos
 Por defecto usa los mismos valores del original (`postgres` / `root` @ `localhost:5432`, base `MINIMARKET`).
 Se pueden cambiar con variables de entorno: `MINIMARKET_URL`, `MINIMARKET_USER`, `MINIMARKET_PASSWORD`.

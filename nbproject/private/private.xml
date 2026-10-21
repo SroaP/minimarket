@@ -3,7 +3,23 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/elpuente/Elpuente.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/resources/img/logo.png</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/BaseDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/Main.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/Conexion.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/BuscarPorNombreDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/BusquedaDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/CargarProductosDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/EditarPreciosDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/ScanProductosDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/VentaTableModel.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/VentaResumen.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/VentaDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/VentaDetalle.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/VentaDao.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/LoginDialog.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/MenuPrincipal.java</file>
+            <file>file:/C:/Users/santi/OneDrive/Desktop/Programacion%20II/Elpuente/src/main/java/py/elpuente/minimarket/ProductoTableModel.java</file>
         </group>
     </open-files>
 </project-private>

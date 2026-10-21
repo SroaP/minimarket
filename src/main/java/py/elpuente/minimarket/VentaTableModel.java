@@ -14,6 +14,9 @@ final class VentaTableModel extends AbstractTableModel {
     @Override public int getRowCount() { return carrito.lineas().size(); }
     @Override public int getColumnCount() { return COLUMNAS.length; }
     @Override public String getColumnName(int c) { return COLUMNAS[c]; }
+    @Override public Class<?> getColumnClass(int c) {
+        return switch (c) { case 2, 4 -> java.math.BigDecimal.class; case 3 -> Double.class; default -> String.class; };
+    }
 
     @Override public Object getValueAt(int f, int c) {
         LineaVenta l = carrito.lineas().get(f);

@@ -10,7 +10,7 @@ final class EliminarProductosDialog extends BusquedaDialog {
     EliminarProductosDialog(Window padre) {
         super(padre, "Eliminar productos");
 
-        JButton eliminar = Ui.boton("eliminar", 14f);
+        JButton eliminar = Ui.boton("Eliminar producto", 13f, Ui.Estilo.PELIGRO);
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 1; c.gridy = 2; c.anchor = GridBagConstraints.WEST; c.insets = new Insets(10, 6, 6, 6);
         formulario.add(eliminar, c);

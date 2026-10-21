@@ -7,13 +7,13 @@ import java.sql.SQLException;
 
 /** Cambia el precio por codigo o por nombre. Equivale a editar_precios. */
 final class EditarPreciosDialog extends BusquedaDialog {
-    private final JTextField txtPrecio = Ui.campo(18, 14f);
+    private final JTextField txtPrecio = Ui.campo(24, 14f);
 
     EditarPreciosDialog(Window padre) {
         super(padre, "Editar precios");
 
-        fila(formulario, 2, "Ingrese el nuevo precio", txtPrecio);
-        JButton editar = Ui.boton("editar", 14f);
+        fila(formulario, 2, "Nuevo precio", txtPrecio);
+        JButton editar = Ui.boton("Guardar nuevo precio", 13f);
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 1; c.gridy = 3; c.anchor = GridBagConstraints.WEST; c.insets = new Insets(10, 6, 6, 6);
         formulario.add(editar, c);
